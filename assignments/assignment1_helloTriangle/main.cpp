@@ -90,15 +90,17 @@ unsigned int createVAO(float* vertexData, int numVertices) {
 
 
 int main() {
-
+	// source code for shaders
 	const char* vertexShaderSource = R"(
 	#version 450
 	layout(location = 0) in vec3 vPos;
 	layout(location = 1) in vec4 vColor;
 	out vec4 Color;
+	uniform float _Time;
 	void main(){
 		Color = vColor;
-		gl_Position = vec4(vPos,1.0);
+		vec3 offset = vec3(0,sin(vPos.x + _Time),0)*0.5;
+		gl_Position = vec4(vPos + offset,1.0);
 	}
 	)";
 
@@ -106,8 +108,9 @@ int main() {
 	#version 450
 	out vec4 FragColor;
 	in vec4 Color;
+	uniform float _Time;
 	void main(){
-		FragColor = Color;
+		FragColor = Color * abs(sin(_Time));
 	}
 	)";
 
@@ -132,12 +135,21 @@ int main() {
  	unsigned int shader = createShaderProgram(vertexShaderSource, fragmentShaderSource);
 	unsigned int vao = createVAO(vertices, 3);
 
+	// main loop
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glUseProgram(shader);
 		glBindVertexArray(vao);
+
+		// get the current time in seconds
+		float time = (float)glfwGetTime();
+		//get the location of the uniform by name
+		int timeLocation = glGetUniformLocation(shader, "_Time");
+		// set the value of the variable at the location
+		glUniform1f(timeLocation, time);
+
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		glfwSwapBuffers(window);
