@@ -40,7 +40,7 @@ unsigned int indices[6] = {
 };
 
 
-
+// colors
 float mountainColor[3] = { 0.2, 0.3, 0.2 };
 
 float skyColor1[3] = { 0.3, 0.6, 0.7 };
@@ -58,8 +58,8 @@ bool showImGUIDemoWindow = true;
 unsigned int createVAO(Vertex* vertexData, int numVertices, unsigned int* indicesData, int numIndices);
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 
-const int SCREEN_WIDTH = 720;
-const int SCREEN_HEIGHT = 720;
+const int SCREEN_WIDTH = 960;
+const int SCREEN_HEIGHT = 960;
 
 
 int main() {
@@ -120,6 +120,7 @@ int main() {
 		shader.setVec3("sunColor2", sunColor2[0], sunColor2[1], sunColor2[2]);
 
 		shader.setVec3("mountainColor", mountainColor[0], mountainColor[1], mountainColor[2]);
+
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT,NULL);
 
 		//Render UI
@@ -130,8 +131,15 @@ int main() {
 
 			ImGui::Begin("Settings");
 			ImGui::Checkbox("Show Demo Window", &showImGUIDemoWindow);
-			//ImGui::ColorEdit3("Color", triangleColor);
-			//ImGui::SliderFloat("Brightness", &triangleBrightness, 0.0f, 1.0f);
+			ImGui::ColorEdit3("Day Sky 1", skyColor1);
+			ImGui::ColorEdit3("Day Sky 2", skyColor2);
+			ImGui::ColorEdit3("Night Sky 1", skyColor3);
+			ImGui::ColorEdit3("Night Sky 2", skyColor4);
+			ImGui::ColorEdit3("Sun Color 1", sunColor1);
+			ImGui::ColorEdit3("Sun Color 2", sunColor2);
+			ImGui::ColorEdit3("Mountain Color", mountainColor);
+			
+			ImGui::SliderFloat("Sun Speed", &sunSpeed, 0.0f, 10.0f);
 			ImGui::End();
 			if (showImGUIDemoWindow) {
 				ImGui::ShowDemoWindow(&showImGUIDemoWindow);

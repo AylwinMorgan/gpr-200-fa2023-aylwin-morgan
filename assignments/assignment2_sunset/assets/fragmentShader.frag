@@ -10,17 +10,22 @@ uniform vec3 sunColor1;
 uniform vec3 sunColor2;
 uniform vec3 mountainColor;
 in vec2 uv;
+
 void main(){
+
+    // draws the shape of the sun
     vec2 center = vec2(0,sin(iTime*sunSpeed)-0.5);
     float d = distance(center,uv);
     float radius = 0.5;
     float t = smoothstep(radius,radius+0.1,d);
     
+    // draws the shape of the mountains
     float mountains = -0.5-abs(mod(uv.x,0.4)-0.2);
     mountains = -0.75+abs(sin(5.0*uv.x)/5.0);
     float drawMountains = step(mountains,uv.y);
 
-    vec3 sunColor = mix(sunColor2,sunColor1,-sin(iTime*sunSpeed)*0.5);
+    //sets all the colors
+    vec3 sunColor = mix(sunColor1,sunColor2,center[1]+0.5);
     vec3 daySkyColor = mix(skyColor2,skyColor1,uv.y);
     vec3 nightSkyColor;
     
