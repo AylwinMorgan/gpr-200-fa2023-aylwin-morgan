@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 
+#include <am/texture.h>
 #include <ew/external/glad.h>
 #include <ew/ewMath/ewMath.h>
 #include <GLFW/glfw3.h>
@@ -18,7 +19,7 @@ struct Vertex {
 unsigned int createVAO(Vertex* vertexData, int numVertices, unsigned short* indicesData, int numIndices);
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 
-const int SCREEN_WIDTH = 1080;
+const int SCREEN_WIDTH = 720;
 const int SCREEN_HEIGHT = 720;
 
 Vertex vertices[4] = {
@@ -32,13 +33,16 @@ unsigned short indices[6] = {
 	2, 3, 0
 };
 
+
 int main() {
+
+	float time;
 	printf("Initializing...");
 	if (!glfwInit()) {
 		printf("GLFW failed to init!");
 		return 1;
 	}
-
+	
 	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Textures", NULL, NULL);
 	if (window == NULL) {
 		printf("GLFW failed to create window");
@@ -51,7 +55,8 @@ int main() {
 		printf("GLAD Failed to load GL headers");
 		return 1;
 	}
-
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//Initialize ImGUI
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -60,19 +65,51 @@ int main() {
 
 	ew::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
 
+	ew::Shader backgroundShader("assets/background.vert", "assets/background.frag");
+	ew::Shader characterShader("assets/character.vert", "assets/character.frag");
 	unsigned int quadVAO = createVAO(vertices, 4, indices, 6);
+	unsigned int textureA = loadTexture("assets/brick.png", GL_REPEAT, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
+	unsigned int textureB = loadTexture("assets/noise.png", GL_REPEAT, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
+	unsigned int textureC = loadTexture("assets/cat.png", GL_CLAMP_TO_BORDER, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
 
-	glBindVertexArray(quadVAO);
+
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+		glBindVertexArray(quadVAO);
+		time = (float)glfwGetTime();
 
-		//Set uniforms
-		shader.use();
+		//Setup for background shader
+		backgroundShader.use();
+		//place textureA in unit 0
+		glActiveTexture(GL_TEXTURE0);
+ 		glBindTexture(GL_TEXTURE_2D, textureA);
+		// place textureB in unit 1
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, textureB);
+		
+		// make sampler 2d _BrickTexture sample from unit 0
+		backgroundShader.setInt("_BrickTexture", 0);
+		// make sampler 2d _NoiseTexture sample from unit 1
+		backgroundShader.setInt("_NoiseTexture", 1);
+
+		backgroundShader.setFloat("time", time);
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
+
+		//setup for character
+		characterShader.use();
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, textureC);
+
+		characterShader.setInt("_CatTexture", 2);
+		characterShader.setFloat("time", time);
+
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
+		
+
 
 		//Render UI
 		{
