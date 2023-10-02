@@ -37,6 +37,11 @@ unsigned short indices[6] = {
 int main() {
 
 	float time;
+	float zoomSpeed = 1;
+	float distortSpeed = 1;
+	float catSpeed = 1;
+	float maxDistortion = 0.5;
+
 	printf("Initializing...");
 	if (!glfwInit()) {
 		printf("GLFW failed to init!");
@@ -63,22 +68,20 @@ int main() {
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
 
-	ew::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
-
 	ew::Shader backgroundShader("assets/background.vert", "assets/background.frag");
 	ew::Shader characterShader("assets/character.vert", "assets/character.frag");
 	unsigned int quadVAO = createVAO(vertices, 4, indices, 6);
 	unsigned int textureA = loadTexture("assets/brick.png", GL_REPEAT, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
 	unsigned int textureB = loadTexture("assets/noise.png", GL_REPEAT, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
-	unsigned int textureC = loadTexture("assets/cat.png", GL_CLAMP_TO_BORDER, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
+	unsigned int textureC = loadTexture("assets/cat.png", GL_CLAMP_TO_BORDER, GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST);
 
-
+	glBindVertexArray(quadVAO);
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		glBindVertexArray(quadVAO);
+
 		time = (float)glfwGetTime();
 
 		//Setup for background shader
@@ -95,6 +98,11 @@ int main() {
 		// make sampler 2d _NoiseTexture sample from unit 1
 		backgroundShader.setInt("_NoiseTexture", 1);
 
+		// these variables affect the speed that the background zooms and distorts and limits how much it is affected by the noise.png
+		backgroundShader.setFloat("zoomSpeed", zoomSpeed);
+		backgroundShader.setFloat("distortSpeed", distortSpeed);
+		backgroundShader.setFloat("maxDistortion", maxDistortion);
+
 		backgroundShader.setFloat("time", time);
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
@@ -106,6 +114,7 @@ int main() {
 
 		characterShader.setInt("_CatTexture", 2);
 		characterShader.setFloat("time", time);
+		characterShader.setFloat("catSpeed", catSpeed);
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
 		
@@ -118,6 +127,10 @@ int main() {
 			ImGui::NewFrame();
 
 			ImGui::Begin("Settings");
+			ImGui::SliderFloat("Zoom Speed", &zoomSpeed, 0.0, 8.0);
+			ImGui::SliderFloat("Distortion Speed", &distortSpeed, 0.0, 8.0);
+			ImGui::SliderFloat("Maximum Distortion", &maxDistortion, 0.0, 1.0);
+			ImGui::SliderFloat("Cat Movement Speed", &catSpeed, 0.0, 8.0);
 			ImGui::End();
 
 			ImGui::Render();
