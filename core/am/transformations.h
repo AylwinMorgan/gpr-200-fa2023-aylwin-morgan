@@ -73,7 +73,6 @@ namespace am {
 			ew::Mat4 translationMatrix = Translate(position);
 			
 			ew::Mat4 matrix = translationMatrix * rotationMatrixY * rotationMatrixX * rotationMatrixZ * scaleMatrix;
-			//ew::Mat4 matrix = scaleMatrix * rotationMatrixZ * rotationMatrixX * rotationMatrixY * translationMatrix;
 			return matrix;
 		}
 	};

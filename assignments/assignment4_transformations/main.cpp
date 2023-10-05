@@ -20,10 +20,15 @@ const int SCREEN_HEIGHT = 720;
 
 int main() {
 
+	// creates 4 cubes and starts them at different positions
 	am::Transform transform1;
+	transform1.position = ew::Vec3(-0.5, 0.5, 0.0);
 	am::Transform transform2;
+	transform2.position = ew::Vec3(0.5, 0.5, 0.0);
 	am::Transform transform3;
+	transform3.position = ew::Vec3(-0.5, -0.5, 0.0);
 	am::Transform transform4;
+	transform4.position = ew::Vec3(0.5, -0.5, 0.0);
 
 	am::Transform cubes[4] = { transform1, transform2, transform3, transform4 };
 
