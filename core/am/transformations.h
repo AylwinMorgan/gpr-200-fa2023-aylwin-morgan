@@ -84,6 +84,10 @@ namespace am {
 		matrix[0][2] = f.x;
 		matrix[1][2] = f.y;
 		matrix[2][2] = f.z;
+
+		matrix[3][0] = -(ew::Dot(r, eye));
+		matrix[3][1] = -(ew::Dot(u, eye));
+		matrix[3][2] = -(ew::Dot(f, eye));
 		return matrix;
 	};
 
@@ -100,6 +104,7 @@ namespace am {
 
 	inline ew::Mat4 Perspective(float fov, float aspect, float near, float far) {
 		ew::Mat4 matrix = Identity();
+		fov = ew::Radians(fov);
 		matrix[0][0] = (1 / tan(fov / 2)*aspect);
 		matrix[1][1] = (1 / tan(fov / 2));
 		matrix[2][2] = ((near + far) / (near - far));

@@ -69,7 +69,7 @@ int main() {
 	camera.orthoSize = 6;
 	camera.nearPlane = 0.1;
 	camera.farPlane = 100;
-	camera.orthographic = true;
+	camera.orthographic = false;
 
 	//Cube positions
 	for (size_t i = 0; i < NUM_CUBES; i++)
@@ -86,7 +86,8 @@ int main() {
 
 		//Set uniforms
 		shader.use();
-
+		shader.setFloat("_Height", SCREEN_HEIGHT);
+		shader.setFloat("_Width", SCREEN_WIDTH);
 		shader.setMat4("_View", camera.ViewMatrix());
 		shader.setMat4("_Projection", camera.ProjectionMatrix());
 		//TODO: Set model matrix uniform
@@ -120,7 +121,7 @@ int main() {
 			ImGui::Text("Camera");
 			ImGui::DragFloat3("Position", &camera.position.x,0.05);
 			ImGui::DragFloat3("Target", &camera.target.x,0.05);
-			ImGui::DragFloat("FOV", &camera.fov, 0.05, 0, 100);
+			ImGui::DragFloat("FOV", &camera.fov, 0.05, 0);
 			ImGui::DragFloat("Near Plane", &camera.nearPlane);
 			ImGui::DragFloat("Far Plane", &camera.farPlane);
 			ImGui::DragFloat("Ortho Height", &camera.orthoSize);

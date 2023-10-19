@@ -6,10 +6,14 @@ out vec3 Normal;
 uniform mat4 _Model;
 uniform mat4 _View;
 uniform mat4 _Projection;
+uniform float _Width;
+uniform float _Height;
 
 void main(){
 	Normal = vNormal;
 	gl_Position = _Projection * _View * _Model * vec4(vPos,1.0);
 
 	//gl_Position.z*=-1.0;
+	gl_Position.x *= _Height / _Width;
+
 }
