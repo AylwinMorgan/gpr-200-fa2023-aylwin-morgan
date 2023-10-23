@@ -24,4 +24,12 @@ namespace am {
 			}
 		}
 	};
+
+	struct CameraControls {
+		double prevMouseX, prevMouseY; // mouse position from last frame
+		float yaw = 0, pitch = 0; // in degrees
+		float mouseSensitivity = 0.1;
+		bool firstMouse = true;
+		float moveSpeed = 5.0;
+	};
 }
