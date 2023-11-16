@@ -74,15 +74,12 @@ int main() {
 	unsigned int brickTexture = ew::loadTexture("assets/brick_color.jpg",GL_REPEAT,GL_LINEAR);
 
 	ew::Shader lightShader("assets/unlit.vert", "assets/unlit.frag");
+	const int LIGHTS_AMOUNT = 4;
 	Light light0;
 	Light light1;
 	Light light2;
 	Light light3;
 	Light lights[4];
-	lights[0] = light0;
-	lights[1] = light1;
-	lights[2] = light2;
-	lights[3] = light3;
 
 	light0.color = (1, 0, 1);
 	light0.position = (1, 3, -1);
@@ -96,9 +93,14 @@ int main() {
 	light3.color = ew::Vec3(0, 0.3, 1);
 	light3.position = ew::Vec3(0, 0.5, 3);
 
+	lights[0] = light0;
+	lights[1] = light1;
+	lights[2] = light2;
+	lights[3] = light3;
+
 	Material material;
 	material.shininess = 8.0;
-	material.ambientK = 1.0;
+	material.ambientK = 0.5;
 	material.diffuseK = 0.0;
 	material.specular = 1.0;
 
@@ -169,12 +171,17 @@ int main() {
 		cylinderMesh.draw();
 
 		//Render point lights
+
 		lightShader.use();
+
 		lightShader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
-		
-		lightShader.setMat4("_Model", sphereTransform.getModelMatrix());
-		lightShader.setVec3("_Color", ew::Vec3(1,0,0));
-		//sphereMesh.draw();
+		for (int i = 0; i < LIGHTS_AMOUNT; i++) {
+			ew::Vec3 color = lights[i].color;
+			ew::Vec3 position = lights[i].position;
+			lightShader.setVec3("_Color", color);
+			lightShader.setMat4("_Model", ew::Scale(ew::Vec3(0.5, 0.5, 0.5)) * ew::Translate(position) * sphereTransform.getModelMatrix());
+			sphereMesh.draw();
+		}
 		
 
 		//Render UI
