@@ -13,7 +13,7 @@ struct Light
 	vec3 position;
 	vec3 color;
 };
-#define MAX_LIGHTS 4
+uniform float _LightsAmount;
 uniform Light _Lights[4];
 
 uniform vec3 _CameraPosition;
@@ -29,7 +29,7 @@ void main(){
 	vec3 viewAngle = normalize(_CameraPosition - fs_in.WorldPosition);
 	vec3 light = vec3(0,0,0);
 	Light _Light;
-	for (int i = 0; i < MAX_LIGHTS; i++){
+	for (int i = 0; i < _LightsAmount; i++){
 		_Light = _Lights[i];
 		vec3 lightAngle = normalize(_Light.position - fs_in.WorldPosition );
 		vec3 halfVector = normalize(viewAngle + lightAngle);

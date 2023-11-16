@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#include <string>
 
 #include <ew/external/glad.h>
 #include <ew/ewMath/ewMath.h>
@@ -74,7 +75,8 @@ int main() {
 	unsigned int brickTexture = ew::loadTexture("assets/brick_color.jpg",GL_REPEAT,GL_LINEAR);
 
 	ew::Shader lightShader("assets/unlit.vert", "assets/unlit.frag");
-	const int LIGHTS_AMOUNT = 4;
+	const int MAX_LIGHTS = 4;
+	int lightsAmount = 4;
 	Light light0;
 	Light light1;
 	Light light2;
@@ -141,14 +143,10 @@ int main() {
 		shader.setInt("_Texture", 0);
 		shader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
 
-		shader.setVec3("_Lights[0].color", light0.color);
-		shader.setVec3("_Lights[0].position", light0.position);
-		shader.setVec3("_Lights[1].color", light1.color);
-		shader.setVec3("_Lights[1].position", light1.position);
-		shader.setVec3("_Lights[2].color", light2.color);
-		shader.setVec3("_Lights[2].position", light2.position);
-		shader.setVec3("_Lights[3].color", light3.color);
-		shader.setVec3("_Lights[3].position", light3.position);
+		for (int i = 0; i < lightsAmount; i++) {
+			shader.setVec3("_Lights[" + std::to_string(i) + "].color", lights[i].color);
+			shader.setVec3("_Lights[" + std::to_string(i) + "].position", lights[i].position);
+		}
 
 		shader.setVec3("_CameraPosition", camera.position);
 		
@@ -156,7 +154,8 @@ int main() {
 		shader.setFloat("_Ambient", material.ambientK);
 		shader.setFloat("_Diffuse", material.diffuseK);
 		shader.setFloat("_Specular", material.specular);
-		
+		shader.setFloat("_LightsAmount", lightsAmount);
+
 		//Draw shapes
 		shader.setMat4("_Model", cubeTransform.getModelMatrix());
 		cubeMesh.draw();
@@ -175,11 +174,11 @@ int main() {
 		lightShader.use();
 
 		lightShader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
-		for (int i = 0; i < LIGHTS_AMOUNT; i++) {
+		for (int i = 0; i < lightsAmount; i++) {
 			ew::Vec3 color = lights[i].color;
 			ew::Vec3 position = lights[i].position;
 			lightShader.setVec3("_Color", color);
-			lightShader.setMat4("_Model", ew::Scale(ew::Vec3(0.5, 0.5, 0.5)) * ew::Translate(position) * sphereTransform.getModelMatrix());
+			lightShader.setMat4("_Model", ew::Translate(position) * ew::Scale(ew::Vec3(0.5, 0.5, 0.5)));
 			sphereMesh.draw();
 		}
 		
@@ -211,10 +210,23 @@ int main() {
 			}
 
 			ImGui::ColorEdit3("BG color", &bgColor.x);
-			ImGui::DragFloat("AmbientK", &material.ambientK, 0.01f, 0.0f, 1.0f);
-			ImGui::DragFloat("DiffuseK", &material.diffuseK, 0.01f, 0.0f, 1.0f);
-			ImGui::DragFloat("SpecularK", &material.specular, 0.01f, 0.0f, 1.0f);
-			ImGui::DragFloat("Shininess", &material.shininess, 0.01f, 2.0f, 256.0f);
+			if (ImGui::CollapsingHeader("Material Settings")) {
+				ImGui::DragFloat("AmbientK", &material.ambientK, 0.01f, 0.0f, 1.0f);
+				ImGui::DragFloat("DiffuseK", &material.diffuseK, 0.01f, 0.0f, 1.0f);
+				ImGui::DragFloat("SpecularK", &material.specular, 0.01f, 0.0f, 1.0f);
+				ImGui::DragFloat("Shininess", &material.shininess, 0.01f, 2.0f, 256.0f);
+			}
+			if (ImGui::CollapsingHeader("Lights")) {
+				ImGui::DragInt("Lights Number", &lightsAmount, 1.0, 0, MAX_LIGHTS);
+				for (int i = 0; i < lightsAmount; i++) {
+					ImGui::PushID(i);
+					if (ImGui::CollapsingHeader("Light")){
+						ImGui::DragFloat3("Position", &lights[i].position.x, 0.1f);
+						ImGui::DragFloat3("Color", &lights[i].color.x, 0.01f, 0.0f, 1.0f);
+					}
+					ImGui::PopID();
+				}
+			}
 			ImGui::End();
 			
 			ImGui::Render();
